@@ -31,7 +31,7 @@ const CurrentSong = ({ image, title, artists }) => {
                     {title}
                 </h3>
                 <span className="text-sm text-gray-400">
-                    {
+                       {
                         artists?.join(', ')
                     }
                 </span>
@@ -74,6 +74,47 @@ const VolumeControl = () => {
         </div>
     )
 }
+
+const SongControls = ({ audio }) => {
+    const [currentTime, setCurrentTime] = useState(0);
+
+    const formatTime = (time) => {
+        if (isNaN(time)) return "0:00";
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+    };
+
+    useEffect(() => {
+        audio.current.addEventListener("timeupdate", e => {
+            setCurrentTime(e.target.currentTime);
+        })
+        return () => {
+            audio.current.removeEventListener("timeupdate", () => {});
+        };
+    }, [currentTime]);
+
+    return (
+        <div className="flex justify-center gap-x-2">
+            <span className="text-sm text-gray-400 opacity-70 w-12 text-right">
+                {formatTime(currentTime)}
+            </span>
+            <Slider
+                defaultValue={[0]}
+                max={audio?.current?.duration ?? 0}
+                min={0}
+                value={[currentTime]}
+                className="w-[400px]"
+                onValueChange={(value) => {
+                    audio.current.currentTime = value;
+                }}
+            />
+            <span className="text-sm text-gray-400 opacity-70 w-12">
+                {formatTime(audio?.current?.duration ?? 0)}
+            </span>
+        </div>
+    );
+}
   
 export function Player() {
     const { isPlaying, setIsPlaying, currentMusic, volume } = usePlayerStore(state => state)
@@ -109,7 +150,7 @@ export function Player() {
     };
 
     return (
-        <div className="flex flex-row justify-between w-full px-4 z-50">
+        <div className="flex flex-row justify-between w-full px-2 z-50">
             <div className="player__body">
                 <CurrentSong { ...currentMusic.song } />
             </div>
@@ -123,6 +164,7 @@ export function Player() {
                         )}
                     </button>
                 </div>
+                <SongControls audio={audioRef} />  
             </div>
             <audio ref={audioRef}></audio>
             <div className="grid place-content-center">

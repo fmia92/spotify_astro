@@ -3,6 +3,8 @@ import type { GetStaticPaths } from "astro";
 import Layout from '@layouts/Layout.astro';
 import PlayListItemCard from '@components/PlayListItemCard.astro';
 import { allPlaylists, songs } from '@/lib/data';
+import MusicsTable from "@/components/MusicsTable.astro";
+import { CardPlayButton } from "@/components/CardPlayButton";
 
 const { id } = Astro.params;
 
@@ -47,9 +49,15 @@ const playListSongs = songs.filter(song => song.albumId == playlist?.albumId);
                 </div>
               </div>
         </header>
+        <div class="pl-6 pt-6">
+          <CardPlayButton id={id} size="large" client:load />
+        </div>
 		<div class="relative z-10 px-6 pt-8">
 		</div>
 		<div class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80 -z-[1]"></div>
+    <section class="flex-1 p-6"> 
+      <MusicsTable songs={playListSongs}/>
+    </section>
 	</div>
 </Layout>
 
